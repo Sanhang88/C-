@@ -1,0 +1,823 @@
+附C#原码：
+Form1.cs
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Threading;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
+
+namespace WindowsFormsApplication4
+{
+    public partial class Form1 : Form
+    {
+        [DllImport("user32.dll")]
+        private static extern int SetCursorPos(int x, int y);
+        int pointA_X, pointA_Y, pointB_X, pointB_Y, pointC_X, pointC_Y, pointD_X, pointD_Y, pointOK_X, pointOK_Y, pointYES_X, pointYES_Y;
+        int keyWait=300, groupWait=700;
+        Form2 s;
+        string st;
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            int i,site=0;
+            char[] sitearray=new char[300];
+            string w= System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+            sitearray = w.ToCharArray();
+            for (i = 0; i < sitearray.Count(); i++)
+                if (sitearray[i] == '\\')
+                    site = i;
+            sitearray[site + 1] = '\0';
+            st = new string(sitearray);
+            s = new Form2(this);
+            s.Show();
+        }
+        private void onceClick (int a,int b)
+        {
+            SetCursorPos(a, b);
+            Process myProcess = new Process();
+            try
+            {
+                myProcess.StartInfo.UseShellExecute = false;
+                myProcess.StartInfo.FileName = "Click.exe";
+                myProcess.StartInfo.CreateNoWindow = true;
+                myProcess.Start();
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine(error.Message);
+                MessageBox.Show("请把Click.exe文件放入正确路径后重试");
+            }
+            Thread.Sleep(keyWait);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Process myProcess = new Process();
+            try
+            {
+                System.Diagnostics.Process.Start("Instruction.txt");
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine(error.Message);
+                MessageBox.Show("请把Instruction.txt文件放入正确路径后重试");
+            }
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            s.Hide();
+            string answer;
+            int[] intAnswer = new int[20];
+            answer = answerBox.Text;
+            char[] AS = answer.ToCharArray();
+            for(int i=0;i<AS.Count();i++)
+            {
+                switch (AS[i])
+                {
+                    case 'a':
+                        {
+                            intAnswer[i] = 1;
+                            break;
+                        }
+                    case 'A':
+                        {
+                            intAnswer[i] = 1;
+                            break;
+                        }
+                    case 'b':
+                        {
+                            intAnswer[i] = 2;
+                            break;
+                        }
+                    case 'B':
+                        {
+                            intAnswer[i] = 2;
+                            break;
+                        }
+                    case 'c':
+                        {
+                            intAnswer[i] = 3;
+                            break;
+                        }
+                    case 'C':
+                        {
+                            intAnswer[i] = 3;
+                            break;
+                        }
+                    case 'd':
+                        {
+                            intAnswer[i] = 4;
+                            break;
+                        }
+                    case 'D':
+                        {
+                            intAnswer[i] = 4;
+                            break;
+                        }
+                    default:
+                        {
+                            MessageBox.Show("答案输入有误，请重试");
+                            return;
+                        }
+                }
+            }
+            for(int i=0;i<AS.Count();i++)
+            {
+                switch(intAnswer[i])
+                {
+                    case 1:
+                        {
+                            onceClick(pointA_X, pointA_Y);
+                            break;
+                        }
+                    case 2:
+                        {
+                            onceClick(pointB_X, pointB_Y);
+                            break;
+                        }
+                    case 3:
+                        {
+                            onceClick(pointC_X, pointC_Y);
+                            break;
+                        }
+                    case 4:
+                        {
+                            onceClick(pointD_X, pointD_Y);
+                            break;
+                        }
+                    default:
+                        {
+                            MessageBox.Show("出现错误，请重试");
+                            return;
+                        }
+                }
+                onceClick(pointOK_X,pointOK_Y);
+                onceClick(pointYES_X,pointYES_Y);
+                Thread.Sleep(groupWait);
+            }
+            s.Show();
+        }
+
+        private void comboBox3_SelectedValueChanged(object sender, EventArgs e)
+        {
+            int i, j;
+            groupWait = 0;
+            String com3 = (string)comboBox3.SelectedItem;
+            char[] com = com3.ToCharArray();
+            for (i = 0; com[i] != 'm'; i++) ;
+            i--;
+            for (j = i; i >= 0; i--)
+            {
+                groupWait += (com[i] - 48) * (int)Math.Pow(10, j - i);
+            }
+        }
+
+        private void comboBox2_SelectedValueChanged(object sender, EventArgs e)
+        {
+            int i,j;
+            keyWait = 0;
+            String com2 = (string)comboBox2.SelectedItem;
+            char[] com = com2.ToCharArray();
+            for (i = 0; com[i] != 'm'; i++) ;
+            i--;
+            for(j=i;i>=0;i--)
+                {
+                    keyWait+= (com[i] - 48)*(int)Math.Pow(10,j-i);
+                }
+        }
+
+        private void button_YES_Click(object sender, EventArgs e)
+        {
+            textBox_YES.Text = "(" + Convert.ToString(pointX) + "," + Convert.ToString(pointY) + ")";
+            pointYES_X = pointX;
+            pointYES_Y = pointY;
+        }
+
+        private void button_OK_Click(object sender, EventArgs e)
+        {
+            textBox_OK.Text = "(" + Convert.ToString(pointX) + "," + Convert.ToString(pointY) + ")";
+            pointOK_X = pointX;
+            pointOK_Y = pointY;
+        }
+
+        private void button_D_Click(object sender, EventArgs e)
+        {
+            textBox_D.Text = "(" + Convert.ToString(pointX) + "," + Convert.ToString(pointY) + ")";
+            pointD_X = pointX;
+            pointD_Y = pointY;
+        }
+
+        private void button_C_Click(object sender, EventArgs e)
+        {
+            textBox_C.Text = "(" + Convert.ToString(pointX) + "," + Convert.ToString(pointY) + ")";
+            pointC_X = pointX;
+            pointC_Y = pointY;
+        }
+
+        private void button_B_Click(object sender, EventArgs e)
+        {
+            textBox_B.Text = "(" + Convert.ToString(pointX) + "," + Convert.ToString(pointY) + ")";
+            pointB_X = pointX;
+            pointB_Y = pointY;
+        }
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+        public static int pointX,pointY;
+        public void changeText()
+        {
+            textBox8.Text = "("+Convert.ToString(pointX) + "," + Convert.ToString(pointY)+")";
+        }
+
+        private void button_A_Click(object sender, EventArgs e)
+        {
+            textBox_A .Text= "(" + Convert.ToString(pointX) + "," + Convert.ToString(pointY) + ")";
+            pointA_X = pointX;
+            pointA_Y = pointY;
+        }
+
+    }
+}
+Form2.cs
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace WindowsFormsApplication4
+{
+    public partial class Form2 : Form
+    {
+        [DllImport("user32.dll")]
+        public static extern bool GetCursorPos(ref Point ppt);
+        Point wp;
+        int StartX, StartY;
+        Form1 form1;
+        public Form2(Form1 t)
+        {
+            form1 = t;
+            InitializeComponent();
+        }
+        public void mouseClick ()
+        {
+
+        }
+        private void Form2_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)   //判断是否按下鼠标左键
+            {
+                StartX = e.X;
+                StartY = e.Y;
+            }
+        }
+
+        private void Form2_MouseUp(object sender, MouseEventArgs e)
+        {
+            GetCursorPos(ref wp);
+            Form1.pointX = wp.X;
+            Form1.pointY = wp.Y;
+            form1.changeText();
+        }
+
+        private void Form2_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                this.Left += e.X - StartX;
+                this.Top += e.Y - StartY;
+            }
+        }
+    }
+}
+Form1.Designer.cs
+namespace WindowsFormsApplication4
+{
+    partial class Form1
+    {
+        /// <summary>
+        /// 必需的设计器变量。
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// 清理所有正在使用的资源。
+        /// </summary>
+        /// <param name="disposing">如果应释放托管资源，为 true；否则为 false。</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows 窗体设计器生成的代码
+
+        /// <summary>
+        /// 设计器支持所需的方法 - 不要修改
+        /// 使用代码编辑器修改此方法的内容。
+        /// </summary>
+        private void InitializeComponent()
+        {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            this.textBox_A = new System.Windows.Forms.TextBox();
+            this.textBox_D = new System.Windows.Forms.TextBox();
+            this.textBox_C = new System.Windows.Forms.TextBox();
+            this.textBox_B = new System.Windows.Forms.TextBox();
+            this.button_A = new System.Windows.Forms.Button();
+            this.button_D = new System.Windows.Forms.Button();
+            this.button_C = new System.Windows.Forms.Button();
+            this.button_B = new System.Windows.Forms.Button();
+            this.button_OK = new System.Windows.Forms.Button();
+            this.textBox_OK = new System.Windows.Forms.TextBox();
+            this.button_YES = new System.Windows.Forms.Button();
+            this.textBox_YES = new System.Windows.Forms.TextBox();
+            this.answerBox = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.comboBox3 = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.button7 = new System.Windows.Forms.Button();
+            this.textBox8 = new System.Windows.Forms.TextBox();
+            this.button1 = new System.Windows.Forms.Button();
+            this.SuspendLayout();
+            // 
+            // textBox_A
+            // 
+            this.textBox_A.Location = new System.Drawing.Point(87, 36);
+            this.textBox_A.Name = "textBox_A";
+            this.textBox_A.Size = new System.Drawing.Size(70, 21);
+            this.textBox_A.TabIndex = 4;
+            this.textBox_A.Text = "请确定位置";
+            this.textBox_A.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // textBox_D
+            // 
+            this.textBox_D.Location = new System.Drawing.Point(87, 131);
+            this.textBox_D.Name = "textBox_D";
+            this.textBox_D.Size = new System.Drawing.Size(70, 21);
+            this.textBox_D.TabIndex = 5;
+            this.textBox_D.Text = "请确定位置";
+            this.textBox_D.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // textBox_C
+            // 
+            this.textBox_C.Location = new System.Drawing.Point(87, 99);
+            this.textBox_C.Name = "textBox_C";
+            this.textBox_C.Size = new System.Drawing.Size(70, 21);
+            this.textBox_C.TabIndex = 6;
+            this.textBox_C.Text = "请确定位置";
+            this.textBox_C.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // textBox_B
+            // 
+            this.textBox_B.Location = new System.Drawing.Point(87, 69);
+            this.textBox_B.Name = "textBox_B";
+            this.textBox_B.Size = new System.Drawing.Size(70, 21);
+            this.textBox_B.TabIndex = 7;
+            this.textBox_B.Text = "请确定位置";
+            this.textBox_B.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // button_A
+            // 
+            this.button_A.Location = new System.Drawing.Point(189, 33);
+            this.button_A.Name = "button_A";
+            this.button_A.Size = new System.Drawing.Size(63, 24);
+            this.button_A.TabIndex = 8;
+            this.button_A.Text = "获取";
+            this.button_A.UseVisualStyleBackColor = true;
+            this.button_A.Click += new System.EventHandler(this.button_A_Click);
+            // 
+            // button_D
+            // 
+            this.button_D.Location = new System.Drawing.Point(189, 128);
+            this.button_D.Name = "button_D";
+            this.button_D.Size = new System.Drawing.Size(63, 24);
+            this.button_D.TabIndex = 9;
+            this.button_D.Text = "获取";
+            this.button_D.UseVisualStyleBackColor = true;
+            this.button_D.Click += new System.EventHandler(this.button_D_Click);
+            // 
+            // button_C
+            // 
+            this.button_C.Location = new System.Drawing.Point(189, 96);
+            this.button_C.Name = "button_C";
+            this.button_C.Size = new System.Drawing.Size(63, 24);
+            this.button_C.TabIndex = 10;
+            this.button_C.Text = "获取";
+            this.button_C.UseVisualStyleBackColor = true;
+            this.button_C.Click += new System.EventHandler(this.button_C_Click);
+            // 
+            // button_B
+            // 
+            this.button_B.Location = new System.Drawing.Point(189, 66);
+            this.button_B.Name = "button_B";
+            this.button_B.Size = new System.Drawing.Size(63, 24);
+            this.button_B.TabIndex = 11;
+            this.button_B.Text = "获取";
+            this.button_B.UseVisualStyleBackColor = true;
+            this.button_B.Click += new System.EventHandler(this.button_B_Click);
+            // 
+            // button_OK
+            // 
+            this.button_OK.Location = new System.Drawing.Point(189, 172);
+            this.button_OK.Name = "button_OK";
+            this.button_OK.Size = new System.Drawing.Size(63, 24);
+            this.button_OK.TabIndex = 14;
+            this.button_OK.Text = "获取";
+            this.button_OK.UseVisualStyleBackColor = true;
+            this.button_OK.Click += new System.EventHandler(this.button_OK_Click);
+            // 
+            // textBox_OK
+            // 
+            this.textBox_OK.Location = new System.Drawing.Point(87, 175);
+            this.textBox_OK.Name = "textBox_OK";
+            this.textBox_OK.Size = new System.Drawing.Size(70, 21);
+            this.textBox_OK.TabIndex = 13;
+            this.textBox_OK.Text = "请确定位置";
+            this.textBox_OK.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // button_YES
+            // 
+            this.button_YES.Location = new System.Drawing.Point(189, 215);
+            this.button_YES.Name = "button_YES";
+            this.button_YES.Size = new System.Drawing.Size(63, 24);
+            this.button_YES.TabIndex = 17;
+            this.button_YES.Text = "获取";
+            this.button_YES.UseVisualStyleBackColor = true;
+            this.button_YES.Click += new System.EventHandler(this.button_YES_Click);
+            // 
+            // textBox_YES
+            // 
+            this.textBox_YES.Location = new System.Drawing.Point(87, 218);
+            this.textBox_YES.Name = "textBox_YES";
+            this.textBox_YES.Size = new System.Drawing.Size(70, 21);
+            this.textBox_YES.TabIndex = 16;
+            this.textBox_YES.Text = "请确定位置";
+            this.textBox_YES.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // answerBox
+            // 
+            this.answerBox.Font = new System.Drawing.Font("微软雅黑", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.answerBox.Location = new System.Drawing.Point(382, 33);
+            this.answerBox.Multiline = true;
+            this.answerBox.Name = "answerBox";
+            this.answerBox.Size = new System.Drawing.Size(188, 50);
+            this.answerBox.TabIndex = 18;
+            this.answerBox.Text = "请依次输入答案(删除此提示)";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.BackColor = System.Drawing.Color.Transparent;
+            this.label7.ForeColor = System.Drawing.SystemColors.ActiveCaption;
+            this.label7.Location = new System.Drawing.Point(321, 45);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(41, 12);
+            this.label7.TabIndex = 19;
+            this.label7.Text = "答案：";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.BackColor = System.Drawing.Color.Transparent;
+            this.label8.ForeColor = System.Drawing.SystemColors.ActiveCaption;
+            this.label8.Location = new System.Drawing.Point(15, 273);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(101, 12);
+            this.label8.TabIndex = 20;
+            this.label8.Text = "活动点当前位置：";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.BackColor = System.Drawing.Color.Transparent;
+            this.label10.Font = new System.Drawing.Font("Segoe Print", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.ForeColor = System.Drawing.SystemColors.ActiveCaption;
+            this.label10.Location = new System.Drawing.Point(17, 57);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(50, 35);
+            this.label10.TabIndex = 24;
+            this.label10.Text = "B：";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.BackColor = System.Drawing.Color.Transparent;
+            this.label11.ForeColor = System.Drawing.SystemColors.ActiveCaption;
+            this.label11.Location = new System.Drawing.Point(15, 184);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(41, 12);
+            this.label11.TabIndex = 25;
+            this.label11.Text = "确定：";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.BackColor = System.Drawing.Color.Transparent;
+            this.label12.ForeColor = System.Drawing.SystemColors.ActiveCaption;
+            this.label12.Location = new System.Drawing.Point(15, 221);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(35, 12);
+            this.label12.TabIndex = 26;
+            this.label12.Text = "YES：";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.BackColor = System.Drawing.Color.Transparent;
+            this.label5.Font = new System.Drawing.Font("Segoe Print", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.ForeColor = System.Drawing.SystemColors.ActiveCaption;
+            this.label5.Location = new System.Drawing.Point(17, 128);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(51, 35);
+            this.label5.TabIndex = 28;
+            this.label5.Text = "D：";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.BackColor = System.Drawing.Color.Transparent;
+            this.label6.Font = new System.Drawing.Font("Segoe Print", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.ForeColor = System.Drawing.SystemColors.ActiveCaption;
+            this.label6.Location = new System.Drawing.Point(17, 21);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(51, 35);
+            this.label6.TabIndex = 29;
+            this.label6.Text = "A：";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.Transparent;
+            this.label1.Font = new System.Drawing.Font("Segoe Print", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.SystemColors.ActiveCaption;
+            this.label1.Location = new System.Drawing.Point(17, 93);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(49, 35);
+            this.label1.TabIndex = 30;
+            this.label1.Text = "C：";
+            // 
+            // comboBox2
+            // 
+            this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox2.FormattingEnabled = true;
+            this.comboBox2.Items.AddRange(new object[] {
+            "50ms",
+            "100ms",
+            "300ms",
+            "500ms"});
+            this.comboBox2.SelectedItem = "300ms";
+            this.comboBox2.Location = new System.Drawing.Point(437, 128);
+            this.comboBox2.Name = "comboBox2";
+            this.comboBox2.Size = new System.Drawing.Size(103, 20);
+            this.comboBox2.TabIndex = 32;
+            this.comboBox2.SelectedValueChanged += new System.EventHandler(this.comboBox2_SelectedValueChanged);
+            // 
+            // comboBox3
+            // 
+            this.comboBox3.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox3.FormattingEnabled = true;
+            this.comboBox3.Items.AddRange(new object[] {
+            "200ms",
+            "500ms",
+            "700ms",
+            "1000ms"});
+            this.comboBox3.SelectedItem = "700ms";
+            this.comboBox3.Location = new System.Drawing.Point(437, 186);
+            this.comboBox3.Name = "comboBox3";
+            this.comboBox3.Size = new System.Drawing.Size(103, 20);
+            this.comboBox3.TabIndex = 33;
+            this.comboBox3.SelectedValueChanged += new System.EventHandler(this.comboBox3_SelectedValueChanged);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.BackColor = System.Drawing.Color.Transparent;
+            this.label2.ForeColor = System.Drawing.SystemColors.ControlLight;
+            this.label2.Location = new System.Drawing.Point(321, 189);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(77, 12);
+            this.label2.TabIndex = 34;
+            this.label2.Text = "组间隔时间：";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.BackColor = System.Drawing.Color.Transparent;
+            this.label3.ForeColor = System.Drawing.SystemColors.ControlLight;
+            this.label3.Location = new System.Drawing.Point(321, 131);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(77, 12);
+            this.label3.TabIndex = 35;
+            this.label3.Text = "键间隔时间：";
+            // 
+            // button7
+            // 
+            this.button7.Font = new System.Drawing.Font("腾祥范笑歌楷书繁", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button7.Location = new System.Drawing.Point(323, 238);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(232, 91);
+            this.button7.TabIndex = 36;
+            this.button7.Text = "开始";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
+            // 
+            // textBox8
+            // 
+            this.textBox8.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textBox8.Location = new System.Drawing.Point(17, 308);
+            this.textBox8.Name = "textBox8";
+            this.textBox8.Size = new System.Drawing.Size(70, 21);
+            this.textBox8.TabIndex = 37;
+            this.textBox8.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // button1
+            // 
+            this.button1.Font = new System.Drawing.Font("腾祥范笑歌楷书繁", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button1.Location = new System.Drawing.Point(140, 260);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(112, 69);
+            this.button1.TabIndex = 39;
+            this.button1.Text = "使用说明";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // Form1
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
+            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.ClientSize = new System.Drawing.Size(584, 356);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.textBox8);
+            this.Controls.Add(this.button7);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.comboBox3);
+            this.Controls.Add(this.comboBox2);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this.label11);
+            this.Controls.Add(this.label10);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.answerBox);
+            this.Controls.Add(this.button_YES);
+            this.Controls.Add(this.textBox_YES);
+            this.Controls.Add(this.button_OK);
+            this.Controls.Add(this.textBox_OK);
+            this.Controls.Add(this.button_B);
+            this.Controls.Add(this.button_C);
+            this.Controls.Add(this.button_D);
+            this.Controls.Add(this.button_A);
+            this.Controls.Add(this.textBox_B);
+            this.Controls.Add(this.textBox_C);
+            this.Controls.Add(this.textBox_D);
+            this.Controls.Add(this.textBox_A);
+            this.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Name = "Form1";
+            this.Text = "听力短对话作弊器";
+            this.Load += new System.EventHandler(this.Form1_Load);
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
+        }
+
+        #endregion
+        private System.Windows.Forms.TextBox textBox_A;
+        private System.Windows.Forms.TextBox textBox_D;
+        private System.Windows.Forms.TextBox textBox_C;
+        private System.Windows.Forms.TextBox textBox_B;
+        private System.Windows.Forms.Button button_A;
+        private System.Windows.Forms.Button button_D;
+        private System.Windows.Forms.Button button_C;
+        private System.Windows.Forms.Button button_B;
+        private System.Windows.Forms.Button button_OK;
+        private System.Windows.Forms.TextBox textBox_OK;
+        private System.Windows.Forms.Button button_YES;
+        private System.Windows.Forms.TextBox textBox_YES;
+        private System.Windows.Forms.TextBox answerBox;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.ComboBox comboBox3;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button button7;
+        public System.Windows.Forms.TextBox textBox8;
+        private System.Windows.Forms.Button button1;
+    }
+}
+
+Form2.Designer.cs
+namespace WindowsFormsApplication4
+{
+    partial class Form2
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form2));
+            this.SuspendLayout();
+            // 
+            // Form2
+            // 
+            this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
+            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Name = "Form2";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.TopMost = true;
+            this.TransparencyKey = System.Drawing.Color.White;
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form2_MouseDown);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Form2_MouseMove);
+            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Form2_MouseUp);
+            this.ResumeLayout(false);
+
+        }
+
+        #endregion
+    }
+}
+Program.cs
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace WindowsFormsApplication4
+{
+    public static class Program
+    {
+        /// <summary>
+        /// 应用程序的主入口点。
+        /// </summary>
+        [STAThread]
+        public static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Form1 form1 = new Form1();
+            Application.Run(form1);
+        }
+    }
+}

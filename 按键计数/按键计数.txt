@@ -1,0 +1,47 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace WindowsFormsApp5
+{
+    public partial class Form1 : Form
+    {
+        String mStr;
+        int[] mNum = new int[30];
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            mStr=textBox1.Text.ToString();
+            button1.Enabled = false;
+            textBox1.ReadOnly = true;
+            textBox2.ReadOnly = true;
+        }
+
+        private void Form1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if(!button1.Enabled)
+            {
+                for (int i = 0; i < mStr.Length; i++)
+                {
+                    if (e.KeyChar == mStr[i])
+                        mNum[i]++;
+                }
+                textBox2.Clear();
+                textBox2.AppendText(mStr[0] + ":" + mNum[0].ToString());
+                if (mStr.Length > 1) ;
+                for (int i = 1; i < mStr.Length; i++)
+                    textBox2.AppendText("," + mStr[i] + ":" + mNum[i].ToString());
+            }
+        }
+    }
+}

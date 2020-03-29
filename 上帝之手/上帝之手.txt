@@ -1,0 +1,69 @@
+ZHSD C:\ProgramData\上帝之手.txt
+ZHRENSHENG E:\人生若只如初见
+ZHSHUJI E:\问渠那得清如许
+ZHLUNWEN E:\人生若只如初见\吾将上下而求索\控制\论文
+ZHRUANJIAN F:\
+ZHMATLAB D:\Program Files\MATLAB\R2018a\bin\matlab.exe
+ZHXIAZAI G:\
+ZHJIAOCHENG F:\软件教程
+ZHPDF D:\Program Files\Adobe\Acrobat DC\Acrobat\Acrobat.exe
+ZHTIANKONG E:\人生若只如初见\吾将上下而求索
+ZHHUAKAI E:\人生若只如初见\忽如一夜春风来\千树万树花开
+ZHLUOHONG E:\人生若只如初见\落红不是无情物
+ZHSHAN ZHONG E:\人生若只如初见\只缘身在此山中
+ZHKESHE E:\人生若只如初见\个人资料
+ZHGEREN E:\人生若只如初见\个人资料
+ZHYESHEN F:\娱乐软件\夜神\Nox\bin\Nox.exe
+ZHYOUXIANG F:\常用软件\网易闪电邮\Start.exe
+ZHVNC F:\网络控制\VNC Viewer\vncviewer.exe
+ZHYAOKONG E:\人生若只如初见\计算机学习\序成\Android\phone_computer_control\control.bat
+ZHXUNLEI F:\网络控制\迅雷\Program\Thunder.exe
+ZHSTK C:\Program Files (x86)\AGI\STK 10\bin\AgUiApplication.exe
+ZHCLEAN C:\Program Files\CCleaner\CCleaner64.exe
+ZHAWEN F:\网络控制\WinSCP\WinSCP.exe
+ZHWINSCP F:\网络控制\WinSCP\WinSCP.exe
+ZHXIEZAI F:\系统应用\Uninstall Tool Portable\UninstallTool.exe
+ZHPUTTY F:\网络控制\PuTTY\putty.exe
+ZHRASPBERRY F:\网络控制\PuTTY\raspberry.bat
+ZHAJIE F:\网络控制\PuTTY\Alipay.bat
+ZHWENKU F:\常用软件\百度文库下载器\Fish-v321\Fish.exe
+ZHVIM D:\Program Files\Vim\vim81\gvim.exe
+ZHGEGONG F:\格式转换工厂\FormatFactory\FormatFactory.exe
+ZHJISUANQI C:\Windows\System32\calc.exe
+ZHCHROME C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
+ZHEXCEL C:\Program Files (x86)\Microsoft Office\root\Office16\EXCEL.EXE
+ZHWORD C:\Program Files (x86)\Microsoft Office\root\Office16\WINWORD.EXE
+ZHTIM D:\Program Files\Tencent\TIM\Bin\TIM.exe
+ZHWEIXIN D:\Program Files\Tencent\WeChat\WeChat.exe
+ZHTSK C:\Windows\System32\Taskmgr.exe
+ZHKUGOU D:\Program Files\KuGou\KGMusic\KuGou.exe
+ZHBAIDUYUN D:\Program Files\BaiduYun\BaiduNetdisk\BaiduNetdisk.exe
+ZHTXT C:\Windows\system32\notepad.exe
+ZHHPYTHON E:\人生若只如初见\计算机学习\门类\Python\Python学习\Python重点难点.txt
+ZHANDROID E:\人生若只如初见\计算机学习\门类\Android
+ZHPYTHON E:\人生若只如初见\计算机学习\门类\Python
+ZHBIANCHENG E:\人生若只如初见\计算机学习\门类
+ZHJISUANJI E:\人生若只如初见\计算机学习
+ZHXUCHENG E:\人生若只如初见\计算机学习\序成
+ZHZUOYE E:\人生若只如初见\吾将上下而求索\作业
+ZHJIANRUAN D:\Program Files
+ZHRUIJIE D:\Program Files\Ruijie\Ruijie Supplicant\RuijieSupplicant.exe
+ZHKONG ZHI E:\人生若只如初见\吾将上下而求索\控制
+ZHQIUSUO E:\人生若只如初见\吾将上下而求索
+ZHQITA E:\人生若只如初见\吾将上下而求索\其他
+ZHGBOOK D:\Program Files\Google Books Downloader\gbooks.exe
+ZHPPT C:\Program Files (x86)\Microsoft Office\root\Office16\POWERPNT.EXE
+ZHMYSQL E:\人生若只如初见\计算机学习\门类\SQL
+ZHMATLAB E:\人生若只如初见\计算机学习\门类\MATLAB
+ZHLINUX E:\人生若只如初见\计算机学习\门类\Shell
+ZHHLINUX E:\人生若只如初见\计算机学习\门类\Shell\实战经验.txt
+ZHBAT E:\人生若只如初见\计算机学习\门类\BAT
+ZHEV D:\Program Files\Everything\Everything.exe
+ZHHBAT E:\人生若只如初见\计算机学习\门类\BAT\在实际中遇到的问题及解决方案.txt
+ZHYINYUE E:\人生若只如初见\计算机学习\序成\C#\音乐下载器\音乐下载器.exe
+ZHHMATLAB E:\人生若只如初见\计算机学习\门类\MATLAB\重点难点.txt
+ZHJAVA E:\人生若只如初见\计算机学习\门类\Java
+ZHHMATH E:\人生若只如初见\计算机学习\门类\Mathematica\函数应用重点难点.txt 
+ZHSCI https://sci-hub.tw/
+ZHBAIDU https://baidu.com/
+end

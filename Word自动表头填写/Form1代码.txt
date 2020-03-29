@@ -1,0 +1,390 @@
+    using System;
+    using Word = Microsoft.Office.Interop.Word;
+    using System.IO;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Windows.Forms;
+
+    namespace WindowsFormsApplication7
+    {
+        public partial class Form1 : Form
+        {
+            public TextBox[] textBox = new TextBox[16];
+            public Boolean[] TOF = new Boolean[16];
+            public Form1()
+            {
+                InitializeComponent();
+                initializeTextBox();
+            }
+            public void initializeBoolean()
+            {
+                for (int i = 0; i < 16; i++)
+                {
+                    TOF[i] = true;
+                }
+            }
+            public void change()
+            {
+                for (int i = 0; i < documents.Items.Count; i++)
+                {
+                    int count = i + 1;
+                    hint.Text = "提示：请稍后，正在执行对"+documents.Items[i]+"的改写操作...";
+                    Boolean final = false;
+                    initializeBoolean();
+                    object oFileName = documents.Items[i];
+                    object oReadOnly = true;
+                    object oMissing = Type.Missing;
+                    Word.Application oWord;
+                    Word.Document oDoc;
+                    oWord = new Word.ApplicationClass();
+                    oDoc = oWord.Documents.Open(ref oFileName, ref oMissing, ref oMissing, ref oMissing, ref oMissing,
+                        ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing, ref oMissing);
+                    //MessageBox.Show(oDoc.Tables.Count.ToString());
+                    foreach (Word.Cell a in oDoc.Tables[1].Range.Cells)
+                    {
+                        if (final)
+                        {
+                            final = false;
+                            continue;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, "姓.*名\r" + (char)7) && TOF[0])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textName.Text;
+                                TOF[0] = false;
+                            }
+                            final = true;
+                            continue;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, "性.*别\r" + (char)7) && TOF[1])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textSex.Text;
+                                TOF[1] = false;
+                                final = true;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, "身.*份.*证.*") && TOF[2])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textID.Text;
+                                TOF[2] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, "民.*族\r" + (char)7) && TOF[3])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textNation.Text;
+                                TOF[3] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, "班.*号\r" + (char)7) && TOF[4])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textClass.Text;
+                                TOF[4] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, "班.*级\r" + (char)7) && TOF[4])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textClass.Text;
+                                TOF[4] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, "年.*级\r" + (char)7) && TOF[5])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textGrade.Text;
+                                TOF[5] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, "学.*号\r" + (char)7) && TOF[6])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textStudentID.Text;
+                                TOF[6] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, "政.*治.*面.*貌\r" + (char)7) && TOF[7])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textPoliticalStatus.Text;
+                                TOF[7] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, "宿.*舍\r" + (char)7) && TOF[8])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textDorm.Text;
+                                TOF[8] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, ".*电.*话\r" + (char)7) && TOF[9])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textPhoneNumber.Text;
+                                TOF[9] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, "联.*系.*方.*式\r" + (char)7) && TOF[9])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textPhoneNumber.Text;
+                                TOF[9] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, ".*手.*机.*号.*") && TOF[9])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textPhoneNumber.Text;
+                                TOF[9] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, ".*QQ.*") && TOF[10])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textQQ.Text;
+                                TOF[10] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, ".*邮.*箱\r" + (char)7) && TOF[11])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textEmail.Text;
+                                TOF[11] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, "社.*会.*工.*作\r" + (char)7) && TOF[12])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textSocialWork.Text;
+                                TOF[12] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, ".*专.*业\r" + (char)7) && TOF[13])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textMajor.Text;
+                                TOF[13] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, "学.*院\r" + (char)7) && TOF[14])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textCollege.Text;
+                                TOF[14] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+                        if (Regex.IsMatch(a.Range.Text, "银.*行.*卡.*号\r" + (char)7) && TOF[15])
+                        {
+                            if (a.Next.Range.Text == "\r" + (char)7)
+                            {
+                                a.Next.Range.Text = textAccountNumber.Text;
+                                TOF[15] = false;
+                            }
+                            continue;
+                            final = true;
+                        }
+
+                    }
+                    oDoc.Close();
+                }
+            }
+            public void saveData()
+            {
+                // 打开文件 ()  , 或通过 File 创建立如： fs = File.Create(path, 1024) 
+                FileStream fs = new FileStream("Data.888", FileMode.Create);
+                // 转换为字节 写入数据 ( 可写入中文 ) 
+                Byte[] info = new UTF8Encoding(true).GetBytes(
+                    textName.Text + (char)13 +
+                    textClass.Text + (char)13 +
+                    textStudentID.Text + (char)13 +
+                    textSex.Text + (char)13 +
+                    textID.Text + (char)13 +
+                    textNation.Text + (char)13 +
+                    textGrade.Text + (char)13 +
+                    textPoliticalStatus.Text + (char)13 +
+                    textDorm.Text + (char)13 +
+                    textPhoneNumber.Text + (char)13 +
+                    textQQ.Text + (char)13 +
+                    textEmail.Text + (char)13 +
+                    textMajor.Text + (char)13 +
+                    textAccountNumber.Text + (char)13 +
+                    textCollege.Text + (char)13 +
+                    textSocialWork.Text + (char)13);
+                // 字节数组 , 字节偏移量 , 最多写入的字节数
+                // 设置要写入的偏移量 
+                fs.Write(info, 0, info.Length);
+                fs.Close();
+                hint.Text = "提示：储存操作成功！";
+            }
+            public void readData()
+            {
+                try
+                {
+                    initializeText();
+                    // 打开文件 
+                    FileStream fs = new FileStream("Data.888", FileMode.Open, FileAccess.Read);
+                    // 读取 
+                    BinaryReader r = new BinaryReader(fs);
+                    foreach (TextBox cc in textBox)
+                    {
+                        while (1 > 0)
+                        {
+                            char readOne = r.ReadChar();
+                            string str;
+                            if (readOne == (char)13)
+                                break;
+                            str = "" + readOne;
+                            cc.AppendText(str);
+                        }
+                    }
+                    fs.Close();
+                    hint.Text = "提示：读取操作成功！";
+                }catch(Exception e)
+                {
+                    hint.Text = "提示：请先进行信息储存操作！";
+                }
+            }
+            public void initializeText()
+            {
+                foreach (TextBox cc in textBox)
+                {
+                    cc.Text = "";
+                }
+            }
+            public void initializeTextBox()
+            {
+                textBox[0] = textName;
+                textBox[1] = textClass;
+                textBox[2] = textStudentID;
+                textBox[3] = textSex;
+                textBox[4] = textID;
+                textBox[5] = textNation;
+                textBox[6] = textGrade;
+                textBox[7] = textPoliticalStatus;
+                textBox[8] = textDorm;
+                textBox[9] = textPhoneNumber;
+                textBox[10] = textQQ;
+                textBox[11] = textEmail;
+                textBox[12] = textMajor;
+                textBox[13] = textAccountNumber;
+                textBox[14] = textCollege;
+                textBox[15] = textSocialWork;
+            }
+
+            private void button1_Click(object sender, EventArgs e)
+            {
+                change();
+                hint.Text = "提示：改写操作完成！";
+            }
+
+            private void listBox1_DragEnter(object sender, DragEventArgs e)
+            {
+                if (e.Data.GetDataPresent(DataFormats.FileDrop))
+
+                {
+
+                    e.Effect = DragDropEffects.Link;
+
+                }
+
+                else if (e.Data.GetDataPresent(DataFormats.Text))
+
+                {
+
+                    e.Effect = DragDropEffects.Copy;
+
+                }
+            }
+
+            private void listBox1_DragDrop(object sender, DragEventArgs e)
+            {
+                if (e.Data.GetDataPresent(DataFormats.FileDrop))
+
+                {
+
+                    string str = ((System.Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
+                    if (Regex.IsMatch(str, ".*doc") || Regex.IsMatch(str, ".*docx"))
+                        documents.Items.Add(str);
+                    else
+                        MessageBox.Show("该文件不是标准的word文件！");
+
+                }
+
+                else if (e.Data.GetDataPresent(DataFormats.Text))
+
+                {
+
+                    label2.Text = (e.Data.GetData(DataFormats.Text)).ToString();
+
+                }
+
+            }
+
+            private void button2_Click(object sender, EventArgs e)
+            {
+                saveData();
+            }
+
+            private void button3_Click(object sender, EventArgs e)
+            {
+                readData();
+            }
+        }
+    }
+abcdef
+

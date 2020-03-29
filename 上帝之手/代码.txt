@@ -1,0 +1,122 @@
+#include "pch.h"
+#include <iostream>
+#include<stdio.h>
+#include<string>
+#include<fstream>
+#include<time.h>
+#include<windows.h>
+using namespace std;
+#pragma comment( linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"" )
+typedef struct letter {
+	int a = -1;
+	struct letter* letters[26];
+}letr;
+HMODULE GetCurrentModule();
+LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
+void initial(letr* a, letr* b);
+void circle(string word);
+HHOOK myhook;
+MSG Msg;
+HWND hgWnd;
+letr o, *mark = &o;
+string source[200];
+letr a[888];
+int ordinal = 0;
+int why=0;
+int main() {
+	ifstream in("C:\\ProgramData\\上帝之手.txt");
+	if (!in) {
+		HKEY hKey;
+		LPCTSTR lpRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+		long lRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE, lpRun, 0, KEY_WRITE, &hKey);
+		if (lRet == ERROR_SUCCESS)
+		{
+			char pFileName[MAX_PATH] = { 0 };
+			DWORD dwRet = GetModuleFileName(NULL, pFileName, MAX_PATH);
+			lRet = RegSetValueEx(hKey, "上帝之手", 0, REG_SZ, (BYTE *)pFileName, dwRet);
+			RegCloseKey(hKey);
+			if (lRet != ERROR_SUCCESS)
+				MessageBox(GetForegroundWindow(), "系统参数错误,不能随系统启动", "error", MB_OK);
+		}
+		ofstream fout("C:\\ProgramData\\上帝之手.txt");
+		fout << "ZHSD C:\\ProgramData\\上帝之手.txt\nend\n" << endl; 
+		fout.close();
+		ShellExecute(NULL, "open", "C:\\ProgramData\\上帝之手.txt", NULL, NULL, SW_SHOWNORMAL);
+		ifstream in("C:\\ProgramData\\上帝之手.txt");
+	}
+	initial(&o, &o);
+	o.letters[25] = a + why++;
+	initial(o.letters[25], &o);
+	o.letters[25]->letters[7] = a + why++;
+	initial(o.letters[25]->letters[7], &o);
+	o.letters[25]->letters[7]->letters[6] = a + why++;
+	initial(o.letters[25]->letters[7]->letters[6], &o);
+	o.letters[25]->letters[7]->letters[6]->letters[3] = a + why++;
+	initial(o.letters[25]->letters[7]->letters[6]->letters[3], &o);
+	o.letters[25]->letters[7]->letters[6]->letters[3]->a = 8888;
+	string Open = "ZHSD C:\\ProgramData\\上帝之手.txt";
+	circle(Open);
+	string line;
+	getline(in, line);
+	while (int(line.length())>4) {
+		circle(line);
+		getline(in, line);
+		mark = &o;
+	}
+	in.close();
+	myhook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, GetCurrentModule(), 0);
+	GetMessage(&Msg, NULL, 0, 0);
+}
+HMODULE GetCurrentModule()
+{
+	HMODULE hModule = NULL;
+	GetModuleHandleEx(
+		GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
+		(LPCTSTR)GetCurrentModule,
+		&hModule);
+
+	return hModule;
+}
+LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	PKBDLLHOOKSTRUCT press = (PKBDLLHOOKSTRUCT)lParam;
+	HDC hdc;
+	if (nCode >= 0)
+	{
+		if (wParam == WM_KEYDOWN) {
+			if (press->vkCode > 64 && press->vkCode < 91)
+				mark = mark->letters[press->vkCode - 65];
+			if (mark->a == 8888)
+				exit(0);
+			if (mark->a != -1)
+			{
+				if(int(ShellExecute(NULL, "open", source[mark->a].c_str(), NULL, NULL, SW_SHOWNORMAL))<32)
+					MessageBox(GetForegroundWindow(),"您的根文件有误","错误",MB_OK);
+				mark = &o;
+			}
+		}
+		hdc = GetDC(hgWnd);
+		ReleaseDC(hgWnd, hdc);
+	}
+	return CallNextHookEx(myhook, nCode, wParam, lParam);
+}
+void circle(string word) {
+	string first = word.substr(0, word.find(' '));
+	string second = word.substr(word.find(' ') + 1, word.length());
+	for (char& c : first)
+	{
+		int grade = int(c) >= 97 ? int(c) - 97 : int(c) - 65;
+		if (mark->letters[grade] == &o)
+		{
+			mark->letters[grade] = a + why++;
+			initial(mark->letters[grade], &o);
+		}
+		mark = mark->letters[grade];
+	}
+	source[ordinal] = second;
+	mark->a = ordinal++;
+}
+void initial(letr* a,letr* b) {
+	for (int i = 0; i < 26; i++)
+		a->letters[i] = b;
+}

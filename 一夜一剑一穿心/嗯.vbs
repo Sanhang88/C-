@@ -1,0 +1,1 @@
+CreateObject ("SAPI.SpVoice").Speak "可欣可欣我爱你就像老鼠爱大米"

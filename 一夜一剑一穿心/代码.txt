@@ -1,0 +1,192 @@
+using Microsoft.Win32;
+using System;
+using System.Windows.Forms;
+using System.Net.NetworkInformation;
+using System.Text;
+using System.Net;
+using System.IO;
+using System.Security.AccessControl;
+using System.Security.Cryptography;
+using System.Threading;
+using System.Media;
+
+namespace ConsoleApplication2
+{
+    class Program
+    {
+        static string txtFilepath = @"C:\ProgramData\uo0o0o\a.txt";
+        static string wavFilepath = @"C:\ProgramData\uo0o0o\a.wav";
+        static string pngFilepath = @"C:\ProgramData\uo0o0o\a.png";
+        static string sizeFilepath = @"C:\ProgramData\uo0o0o\size";
+        static string filepath = @"C:\ProgramData\uo0o0o";
+        static string filepath_string = @"C:\ProgramData\uo0o0o\";
+
+        [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "ShowWindow", SetLastError = true)]
+        static extern bool ShowWindow(IntPtr hWnd, uint nCmdShow);
+        [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "FindWindow", SetLastError = true)]
+        public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+        static void Main(string[] args)
+        {
+
+            while (true)
+            {
+                Console.Title = "Kongg";
+                IntPtr intptr = FindWindow("ConsoleWindowClass", "Kongg");
+                if (intptr != IntPtr.Zero)
+                {
+                    ShowWindow(intptr, 0);
+                    break;
+                }
+            }
+
+            AutoStart(true);
+            while (true)
+            {
+                if (ping() == true)
+                {
+                    StreamReader sr = new StreamReader(sizeFilepath);
+                    string size = sr.ReadLine();
+                    sr.Close();
+                    string[] a = size.Split(' ');
+                    try
+                    {
+                        string url = "ftp://47.95.202.222/a.txt";
+                        WebClient myWebClient = new WebClient();
+
+                        myWebClient.DownloadFile(url, txtFilepath);
+                        changeCompetence(txtFilepath);
+                        FileInfo file0 = new FileInfo(txtFilepath);
+                        if (file0.Length == int.Parse(a[0]))
+                            System.IO.File.Delete(txtFilepath);
+                        else
+                        {
+                            a[0] = file0.Length.ToString();
+                            StreamReader srtxt = new StreamReader(txtFilepath);
+                            string[] alarm = srtxt.ReadLine().Split(' ');
+                            srtxt.Close();
+                            ThreadPool.QueueUserWorkItem(x =>
+                            {
+                                System.Windows.Forms.MessageBox.Show(alarm[1], alarm[0], MessageBoxButtons.OK, 
+                                    MessageBoxIcon.None, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+                                Thread.CurrentThread.Abort();
+                            }, null);
+                            FileInfo ft = new FileInfo(txtFilepath);
+                            Random ran = new Random();
+                            int n = ran.Next(100, 1000);
+                            int md5 = MD5.Create().GetHashCode();
+                            ft.CopyTo(filepath_string + md5.ToString() + n.ToString() + ".txt");
+                        }
+                        Thread.Sleep(2000);
+                        url = "ftp://47.95.202.222/a.wav";
+                        myWebClient.DownloadFile(url, wavFilepath);
+                        changeCompetence(wavFilepath);
+                        System.IO.FileInfo file1 = new System.IO.FileInfo(wavFilepath);
+                        if (file1.Length == int.Parse(a[1]))
+                            System.IO.File.Delete(wavFilepath);
+                        else
+                        {
+                            a[1] = file1.Length.ToString();
+                            SoundPlayer sound = new SoundPlayer(wavFilepath);
+                            sound.Play();
+                            Thread.Sleep(30000);
+                            FileInfo ft = new FileInfo(wavFilepath);
+                            int md5 = MD5.Create().GetHashCode();
+                            ft.CopyTo(filepath_string + md5.ToString() + ".wav");
+                        }
+                        url = "ftp://47.95.202.222/a.png";
+                        myWebClient.DownloadFile(url, pngFilepath);
+                        System.IO.FileInfo file2 = new System.IO.FileInfo(pngFilepath);
+                        if (file2.Length == int.Parse(a[2]))
+                            System.IO.File.Delete(pngFilepath);
+                        else
+                        {
+                            a[2] = file2.Length.ToString();
+                            FileInfo ft = new FileInfo(pngFilepath);
+                            changeCompetence(pngFilepath);
+                            int md5 = MD5.Create().GetHashCode();
+                            ft.CopyTo(filepath_string + md5.ToString() + ".png");
+                        }
+
+                        StreamWriter sw = new StreamWriter(sizeFilepath, false, Encoding.Default);
+                        sw.WriteLine(a[0] + " " + a[1] + " " + a[2]);
+                        sw.Flush();
+                        sw.Close();
+                        Thread.Sleep(8000);
+                    }
+                    catch
+                    {
+                        StreamWriter sw = new StreamWriter(sizeFilepath, false, Encoding.Default);
+                        sw.WriteLine(a[0] + " " + a[1] + " " + a[2]);
+                        sw.Flush();
+                        sw.Close();
+                        Thread.Sleep(8000);
+                    }
+                }
+                else
+                {
+                    continue;
+                }
+            }
+        }
+        public static void AutoStart(bool isAuto)
+        {
+            try
+            {
+                if (isAuto == true && !Directory.Exists(filepath))
+                {
+                    RegistryKey R_local = Registry.LocalMachine;
+                    RegistryKey R_run = R_local.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run");
+                    R_run.SetValue("应用名称", Application.ExecutablePath);
+                    R_run.Close();
+                    R_local.Close();
+                    Directory.CreateDirectory(filepath);
+                    File.SetAttributes(filepath, FileAttributes.Hidden);
+                    StreamWriter sw = new StreamWriter(sizeFilepath, false, Encoding.Default);
+                    sw.WriteLine("0 0 0");
+                    sw.Flush();
+                    sw.Close();
+                    changeCompetence(filepath);
+                    changeCompetence(sizeFilepath);
+                }
+                //GlobalVariant.Instance.UserConfig.AutoStart = isAuto;
+            }
+            catch (Exception)
+            {
+                if (!Directory.Exists(filepath))
+                    System.Windows.Forms.MessageBox.Show("您需要管理员权限修改", "提示");
+                System.Environment.Exit(0);
+            }
+        }
+        public static bool ping()
+        {
+            try
+            {
+                Ping pingSender = new Ping();
+                string data = "test data abcabc";
+                byte[] buffer = Encoding.ASCII.GetBytes(data);
+                int timeout = 120;
+                PingOptions options = new PingOptions();
+                options.DontFragment = true;
+                string ipStr = "WWW.BAIDU.COM".Trim();
+                PingReply reply = pingSender.Send(ipStr, timeout, buffer, options);
+                if (reply.Status == IPStatus.Success)
+                    return true;
+                else
+                    return false;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public static void changeCompetence(string filepath)
+        {
+            FileInfo fi = new FileInfo(filepath);
+            FileSecurity fileSecurity = fi.GetAccessControl();
+            fileSecurity.AddAccessRule(new FileSystemAccessRule("Everyone", FileSystemRights.FullControl, AccessControlType.Allow));
+            fileSecurity.AddAccessRule(new FileSystemAccessRule("Users", FileSystemRights.FullControl, AccessControlType.Allow));
+            fi.SetAccessControl(fileSecurity);
+        }
+    }
+}

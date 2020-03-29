@@ -1,0 +1,553 @@
+Class1.cs
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using System.Reflection;
+
+namespace WindowsFormsApplication3
+{
+    /// <summary>
+    /// 键盘钩子
+    /// [以下代码来自某网友，并非本人原创]
+    /// </summary>
+    class KeyboardHook
+    {
+        public event KeyEventHandler KeyDownEvent;
+        public event KeyPressEventHandler KeyPressEvent;
+        public event KeyEventHandler KeyUpEvent;
+
+        public delegate int HookProc(int nCode, Int32 wParam, IntPtr lParam);
+        static int hKeyboardHook = 0; //声明键盘钩子处理的初始值
+        //值在Microsoft SDK的Winuser.h里查询
+        // http://www.bianceng.cn/Programming/csharp/201410/45484.htm
+        public const int WH_KEYBOARD_LL = 13;   //线程键盘钩子监听鼠标消息设为2，全局键盘监听鼠标消息设为13
+        HookProc KeyboardHookProcedure; //声明KeyboardHookProcedure作为HookProc类型
+        //键盘结构
+        [StructLayout(LayoutKind.Sequential)]
+        public class KeyboardHookStruct
+        {
+            public int vkCode;  //定一个虚拟键码。该代码必须有一个价值的范围1至254
+            public int scanCode; // 指定的硬件扫描码的关键
+            public int flags;  // 键标志
+            public int time; // 指定的时间戳记的这个讯息
+            public int dwExtraInfo; // 指定额外信息相关的信息
+        }
+        //使用此功能，安装了一个钩子
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern int SetWindowsHookEx(int idHook, HookProc lpfn, IntPtr hInstance, int threadId);
+
+
+        //调用此函数卸载钩子
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool UnhookWindowsHookEx(int idHook);
+
+
+        //使用此功能，通过信息钩子继续下一个钩子
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        public static extern int CallNextHookEx(int idHook, int nCode, Int32 wParam, IntPtr lParam);
+
+        // 取得当前线程编号（线程钩子需要用到）
+        [DllImport("kernel32.dll")]
+        static extern int GetCurrentThreadId();
+
+        //使用WINDOWS API函数代替获取当前实例的函数,防止钩子失效
+        [DllImport("kernel32.dll")]
+        public static extern IntPtr GetModuleHandle(string name);
+
+        public void Start()
+        {
+            // 安装键盘钩子
+            if (hKeyboardHook == 0)
+            {
+                KeyboardHookProcedure = new HookProc(KeyboardHookProc);
+                hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardHookProcedure, GetModuleHandle(System.Diagnostics.Process.GetCurrentProcess().MainModule.ModuleName), 0);
+                //hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardHookProcedure, Marshal.GetHINSTANCE(Assembly.GetExecutingAssembly().GetModules()[0]), 0);
+                //************************************
+                //键盘线程钩子
+                //SetWindowsHookEx( 2,KeyboardHookProcedure, IntPtr.Zero, GetCurrentThreadId());//指定要监听的线程idGetCurrentThreadId(),
+                //键盘全局钩子,需要引用空间(using System.Reflection;)
+                //SetWindowsHookEx( 13,MouseHookProcedure,Marshal.GetHINSTANCE(Assembly.GetExecutingAssembly().GetModules()[0]),0);
+                //
+                //关于SetWindowsHookEx (int idHook, HookProc lpfn, IntPtr hInstance, int threadId)函数将钩子加入到钩子链表中，说明一下四个参数：
+                //idHook 钩子类型，即确定钩子监听何种消息，上面的代码中设为2，即监听键盘消息并且是线程钩子，如果是全局钩子监听键盘消息应设为13，
+                //线程钩子监听鼠标消息设为7，全局钩子监听鼠标消息设为14。lpfn 钩子子程的地址指针。如果dwThreadId参数为0 或是一个由别的进程创建的
+                //线程的标识，lpfn必须指向DLL中的钩子子程。 除此以外，lpfn可以指向当前进程的一段钩子子程代码。钩子函数的入口地址，当钩子钩到任何
+                //消息后便调用这个函数。hInstance应用程序实例的句柄。标识包含lpfn所指的子程的DLL。如果threadId 标识当前进程创建的一个线程，而且子
+                //程代码位于当前进程，hInstance必须为NULL。可以很简单的设定其为本应用程序的实例句柄。threaded 与安装的钩子子程相关联的线程的标识符
+                //如果为0，钩子子程与所有的线程关联，即为全局钩子
+                //************************************
+                //如果SetWindowsHookEx失败
+                if (hKeyboardHook == 0)
+                {
+                    Stop();
+                }
+            }
+        }
+        public void Stop()
+        {
+            bool retKeyboard = true;
+
+
+            if (hKeyboardHook != 0)
+            {
+                retKeyboard = UnhookWindowsHookEx(hKeyboardHook);
+                hKeyboardHook = 0;
+            }
+
+        }
+        //ToAscii职能的转换指定的虚拟键码和键盘状态的相应字符或字符
+        [DllImport("user32")]
+        public static extern int ToAscii(int uVirtKey, //[in] 指定虚拟关键代码进行翻译。
+                                         int uScanCode, // [in] 指定的硬件扫描码的关键须翻译成英文。高阶位的这个值设定的关键，如果是（不压）
+                                         byte[] lpbKeyState, // [in] 指针，以256字节数组，包含当前键盘的状态。每个元素（字节）的数组包含状态的一个关键。如果高阶位的字节是一套，关键是下跌（按下）。在低比特，如果设置表明，关键是对切换。在此功能，只有肘位的CAPS LOCK键是相关的。在切换状态的NUM个锁和滚动锁定键被忽略。
+                                         byte[] lpwTransKey, // [out] 指针的缓冲区收到翻译字符或字符。
+                                         int fuState); // [in] Specifies whether a menu is active. This parameter must be 1 if a menu is active, or 0 otherwise.
+
+        //获取按键的状态
+        [DllImport("user32")]
+        public static extern int GetKeyboardState(byte[] pbKeyState);
+
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+        private static extern short GetKeyState(int vKey);
+
+        private const int WM_KEYDOWN = 0x100;//KEYDOWN
+        private const int WM_KEYUP = 0x101;//KEYUP
+        private const int WM_SYSKEYDOWN = 0x104;//SYSKEYDOWN
+        private const int WM_SYSKEYUP = 0x105;//SYSKEYUP
+
+        private int KeyboardHookProc(int nCode, Int32 wParam, IntPtr lParam)
+        {
+            // 侦听键盘事件
+            if ((nCode >= 0) && (KeyDownEvent != null || KeyUpEvent != null || KeyPressEvent != null))
+            {
+                KeyboardHookStruct MyKeyboardHookStruct = (KeyboardHookStruct)Marshal.PtrToStructure(lParam, typeof(KeyboardHookStruct));
+                // raise KeyDown
+                if (KeyDownEvent != null && (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN))
+                {
+                    Keys keyData = (Keys)MyKeyboardHookStruct.vkCode;
+                    KeyEventArgs e = new KeyEventArgs(keyData);
+                    KeyDownEvent(this, e);
+                }
+
+                //键盘按下
+                if (KeyPressEvent != null && wParam == WM_KEYDOWN)
+                {
+                    byte[] keyState = new byte[256];
+                    GetKeyboardState(keyState);
+
+                    byte[] inBuffer = new byte[2];
+                    if (ToAscii(MyKeyboardHookStruct.vkCode, MyKeyboardHookStruct.scanCode, keyState, inBuffer, MyKeyboardHookStruct.flags) == 1)
+                    {
+                        KeyPressEventArgs e = new KeyPressEventArgs((char)inBuffer[0]);
+                        KeyPressEvent(this, e);
+                    }
+                }
+
+                // 键盘抬起
+                if (KeyUpEvent != null && (wParam == WM_KEYUP || wParam == WM_SYSKEYUP))
+                {
+                    Keys keyData = (Keys)MyKeyboardHookStruct.vkCode;
+                    KeyEventArgs e = new KeyEventArgs(keyData);
+                    KeyUpEvent(this, e);
+                }
+
+            }
+            //如果返回1，则结束消息，这个消息到此为止，不再传递。
+            //如果返回0或调用CallNextHookEx函数则消息出了这个钩子继续往下传递，也就是传给消息真正的接受者
+            return CallNextHookEx(hKeyboardHook, nCode, wParam, lParam);
+        }
+        ~KeyboardHook()
+        {
+            Stop();
+        }
+    }
+}
+Class2.cs
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+
+namespace WindowsFormsApplication3
+{
+    public enum VKKey
+    {
+        // mouse movements  
+        move = 0x0001,
+        leftdown = 0x0002,
+        leftup = 0x0004,
+        rightdown = 0x0008,
+        rightup = 0x0010,
+        middledown = 0x0020,
+        //keyboard stuff  
+        VK_LBUTTON = 1,
+        VK_RBUTTON = 2,
+        VK_CANCEL = 3,
+        VK_MBUTTON = 4,
+        VK_BACK = 8,
+        VK_TAB = 9,
+        VK_CLEAR = 12,
+        VK_RETURN = 13,
+        VK_SHIFT = 16,
+        VK_CONTROL = 17,
+        VK_MENU = 18,
+        VK_PAUSE = 19,
+        VK_CAPITAL = 20,
+        VK_ESCAPE = 27,
+        VK_SPACE = 32,
+        VK_PRIOR = 33,
+        VK_NEXT = 34,
+        VK_END = 35,
+        VK_HOME = 36,
+        VK_LEFT = 37,
+        VK_UP = 38,
+        VK_RIGHT = 39,
+        VK_DOWN = 40,
+        VK_SELECT = 41,
+        VK_PRINT = 42,
+        VK_EXECUTE = 43,
+        VK_SNAPSHOT = 44,
+        VK_INSERT = 45,
+        VK_DELETE = 46,
+        VK_HELP = 47,
+        VK_NUM0 = 48, //0  
+        VK_NUM1 = 49, //1  
+        VK_NUM2 = 50, //2  
+        VK_NUM3 = 51, //3  
+        VK_NUM4 = 52, //4  
+        VK_NUM5 = 53, //5  
+        VK_NUM6 = 54, //6  
+        VK_NUM7 = 55, //7  
+        VK_NUM8 = 56, //8  
+        VK_NUM9 = 57, //9  
+        VK_A = 65, //A  
+        VK_B = 66, //B  
+        VK_C = 67, //C  
+        VK_D = 68, //D  
+        VK_E = 69, //E  
+        VK_F = 70, //F  
+        VK_G = 71, //G  
+        VK_H = 72, //H  
+        VK_I = 73, //I  
+        VK_J = 74, //J  
+        VK_K = 75, //K  
+        VK_L = 76, //L  
+        VK_M = 77, //M  
+        VK_N = 78, //N  
+        VK_O = 79, //O  
+        VK_P = 80, //P  
+        VK_Q = 81, //Q  
+        VK_R = 82, //R  
+        VK_S = 83, //S  
+        VK_T = 84, //T  
+        VK_U = 85, //U  
+        VK_V = 86, //V  
+        VK_W = 87, //W  
+        VK_X = 88, //X  
+        VK_Y = 89, //Y  
+        VK_Z = 90, //Z  
+        VK_NUMPAD0 = 96, //0  
+        VK_NUMPAD1 = 97, //1  
+        VK_NUMPAD2 = 98, //2  
+        VK_NUMPAD3 = 99, //3  
+        VK_NUMPAD4 = 100, //4  
+        VK_NUMPAD5 = 101, //5  
+        VK_NUMPAD6 = 102, //6  
+        VK_NUMPAD7 = 103, //7  
+        VK_NUMPAD8 = 104, //8  
+        VK_NUMPAD9 = 105, //9  
+        VK_NULTIPLY = 106,
+        VK_ADD = 107,
+        VK_SEPARATOR = 108,
+        VK_SUBTRACT = 109,
+        VK_DECIMAL = 110,
+        VK_DIVIDE = 111,
+        VK_F1 = 112,
+        VK_F2 = 113,
+        VK_F3 = 114,
+        VK_F4 = 115,
+        VK_F5 = 116,
+        VK_F6 = 117,
+        VK_F7 = 118,
+        VK_F8 = 119,
+        VK_F9 = 120,
+        VK_F10 = 121,
+        VK_F11 = 122,
+        VK_F12 = 123,
+        VK_NUMLOCK = 144,
+        VK_SCROLL = 145,
+        middleup = 0x0040,
+        xdown = 0x0080,
+        xup = 0x0100,
+        wheel = 0x0800,
+        virtualdesk = 0x4000,
+        absolute = 0x8000
+    }
+    public class WinIo
+    {
+        public const int KBC_KEY_CMD = 0x64;
+        public const int KBC_KEY_DATA = 0x60;
+
+        [DllImport("WinIo64.dll")]
+        public static extern bool InitializeWinIo();
+
+        [DllImport("WinIo64.dll")]
+        public static extern bool GetPortVal(IntPtr wPortAddr, out int pdwPortVal, byte bSize);
+
+        [DllImport("WinIo64.dll")]
+        public static extern bool SetPortVal(uint wPortAddr, IntPtr dwPortVal, byte bSize);
+
+        [DllImport("WinIo64.dll")]
+        public static extern byte MapPhysToLin(byte pbPhysAddr, uint dwPhysSize, IntPtr PhysicalMemoryHandle);
+
+        [DllImport("WinIo64.dll")]
+        public static extern bool UnmapPhysicalMemory(IntPtr PhysicalMemoryHandle, byte pbLinAddr);
+
+        [DllImport("WinIo64.dll")]
+        public static extern bool GetPhysLong(IntPtr pbPhysAddr, byte pdwPhysVal);
+
+        [DllImport("WinIo64.dll")]
+        public static extern bool SetPhysLong(IntPtr pbPhysAddr, byte dwPhysVal);
+
+        [DllImport("WinIo64.dll")]
+        public static extern void ShutdownWinIo();
+
+        [DllImport("user32.dll")]
+        public static extern int MapVirtualKey(uint Ucode, uint uMapType);
+
+        private static bool IsInitialize { get; set; }
+
+        public static void Initialize()
+        {
+            if (InitializeWinIo())
+            {
+                KBCWait4IBE(); IsInitialize = true;
+            }
+            else
+                System.Windows.Forms.MessageBox.Show("failed");
+
+        }
+        public static void Shutdown()
+        {
+            if (IsInitialize)
+                ShutdownWinIo();
+            IsInitialize = false;
+        }
+        ///Wait for Buffer gets empty  
+        private static void KBCWait4IBE()
+        {
+            int dwVal = 0;
+            do
+            {
+                bool flag = GetPortVal((IntPtr)0x64, out dwVal, 1);
+            }
+            while ((dwVal & 0x2) > 0);
+        }
+        /// key down  
+        public static void MykeyDown(VKKey vKeyCoad)
+        {
+            if (!IsInitialize) return;
+
+            int btScancode = 0;
+            btScancode = MapVirtualKey((uint)vKeyCoad, 0);
+            KBCWait4IBE();
+            SetPortVal(KBC_KEY_CMD, (IntPtr)0xD2, 1);
+            KBCWait4IBE();
+            SetPortVal(KBC_KEY_DATA, (IntPtr)0x60, 1);
+            KBCWait4IBE();
+            SetPortVal(KBC_KEY_CMD, (IntPtr)0xD2, 1);
+            KBCWait4IBE();
+            SetPortVal(KBC_KEY_DATA, (IntPtr)btScancode, 1);
+        }
+        /// Key up  
+        public static void MykeyUp(VKKey vKeyCoad)
+        {
+            if (!IsInitialize) return;
+
+            int btScancode = 0;
+            btScancode = MapVirtualKey((uint)vKeyCoad, 0);
+            KBCWait4IBE();
+            SetPortVal(KBC_KEY_CMD, (IntPtr)0xD2, 1);
+            KBCWait4IBE();
+            SetPortVal(KBC_KEY_DATA, (IntPtr)0x60, 1);
+            KBCWait4IBE();
+            SetPortVal(KBC_KEY_CMD, (IntPtr)0xD2, 1);
+            KBCWait4IBE();
+            SetPortVal(KBC_KEY_DATA, (IntPtr)(btScancode | 0x80), 1);
+        }
+
+        /// Simulate mouse down  
+        public static void MyMouseDown(int vKeyCoad)
+        {
+            int btScancode = 0;
+            btScancode = MapVirtualKey((byte)vKeyCoad, 0);
+            KBCWait4IBE(); // 'wait for buffer gets empty  
+            SetPortVal(KBC_KEY_CMD, (IntPtr)0xD3, 1);// 'send write command  
+            KBCWait4IBE();
+            SetPortVal(KBC_KEY_DATA, (IntPtr)(btScancode | 0x80), 1);// 'write in io  
+        }
+        /// Simulate mouse up  
+        public static void MyMouseUp(int vKeyCoad)
+        {
+            int btScancode = 0;
+            btScancode = MapVirtualKey((byte)vKeyCoad, 0);
+            KBCWait4IBE(); // 'wait for buffer gets empty  
+            SetPortVal(KBC_KEY_CMD, (IntPtr)0xD3, 1); //'send write command  
+            KBCWait4IBE();
+            SetPortVal(KBC_KEY_DATA, (IntPtr)(btScancode | 0x80), 1);// 'write in io  
+        }
+    }
+}
+Form1.cs
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Collections;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Microsoft.Win32;
+using System.Text.RegularExpressions;
+
+namespace WindowsFormsApplication3
+{
+    public partial class Form1 : Form
+    {
+        KeyboardHook k_hook;
+        String[] Str=null;
+        int Order = 0;
+        public Form1()
+        {
+            InitializeComponent();
+            Initialze();
+        }
+        private void hook_KeyDown(object sender, KeyEventArgs e)
+        {
+            char s = (char)e.KeyValue;
+            if(e.KeyValue==18||e.KeyValue==86)
+            {
+                if (Str != null && Str[Order]!=null&&Order<Str.Length)
+                {
+                    Clipboard.SetText(Str[Order]);
+                    Order++;
+                    if(Order==Str.Length)
+                    {
+                        MessageBox.Show(this,"已完成全部粘贴操作","提示");
+                        Order = 0;
+                        Str = null;
+                    }
+                }
+            }
+        }
+        public void Initialze()
+        {
+            k_hook = new KeyboardHook();
+            k_hook.KeyDownEvent += new KeyEventHandler(hook_KeyDown);//钩住键按下 
+            k_hook.Start();//安装键盘钩子
+
+        }
+        [StructLayout(LayoutKind.Sequential)]
+
+        private struct POINTAPI
+
+        {
+
+            internal int x;
+
+            internal int y;
+
+        }
+
+        [DllImport("gdi32.dll")]
+
+        private static extern IntPtr CreatePolygonRgn(ref POINTAPI lpPoint, int nCount, int nPolyFillMode);
+
+        [DllImport("user32.dll")]
+
+        private static extern IntPtr SetWindowRgn(IntPtr hWnd, IntPtr hRgn, ref Boolean bRedraw);
+
+        //设置窗体显示状态
+
+
+        [DllImport("user32.dll", EntryPoint = "keybd_event")]
+
+        public static extern void keybd_event(
+
+           byte bVk,    //虚拟键值
+
+           byte bScan,// 一般为0
+
+           int dwFlags,  //这里是整数类型  0 为按下，2为释放
+
+           int dwExtraInfo  //这里是整数类型 一般情况下设成为 0
+
+       );
+
+        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Modifiers == Keys.Control && e.KeyCode == Keys.A)
+            {
+                ((TextBox)sender).SelectAll();
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            int A = 0;
+            int B = 0;
+            int C = 0;
+            string str = textBox1.Text;
+            Str = str.Split(new char[] { '\n' });
+            if (Str[Str.Length-1] == "")
+            {
+                ArrayList al = new ArrayList(Str);
+                al.RemoveAt(Str.Length-1);
+                Str = (string[])al.ToArray(typeof(string));
+            }
+            char left='a', right='a', edge='a';
+            if (textBox2.Text.Trim()!=String.Empty)
+                left = textBox2.Text[0];
+            else A=1;
+            if (textBox3.Text.Trim() != String.Empty)
+                right = textBox3.Text[0];
+            else B=1;
+            if (textBox4.Text.Trim() != String.Empty)
+                edge = textBox4.Text[0];
+            else C=1;
+            int j = 0;
+            int tp = 0;
+            foreach (string i in Str)
+            {
+                int a=i.Length, b = i.Length, c = i.Length;
+                if(A==0)
+                 a = i.IndexOf(left);
+                if (a < 0)
+                    a = i.Length;
+                if(B==0)
+                 b = i.IndexOf(right);
+                if (b < 0)
+                    b = i.Length;
+                if(C==0)
+                 c = i.IndexOf(edge);
+                if (c < 0)
+                    c = i.Length;
+                j = a > b ? b : a;
+                j = j > c ? c : j;
+
+                Str[tp] = i.Substring(0, j);
+                tp++;
+            }
+        }
+    }
+}
