@@ -1,0 +1,195 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using System.Windows.Forms;
+
+namespace TextEdit
+{
+    public partial class Form1 : Form
+    {
+        Stack<string> undoList = new Stack<string>();
+        Stack<string> redoList = new Stack<string>();
+
+        Stack<string> CundoList = new Stack<string>();
+        Stack<string> CredoList = new Stack<string>();
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (undoList.Count==0 || undoList.Peek() != textBox1.Text)
+                undoList.Push(textBox1.Text);
+            string text2=textBox2.Text;
+            string[] commands = Regex.Split(text2,"\r\n");
+            try
+            {
+                foreach (string command in commands)
+                {
+                    string text1 = textBox1.Text;
+                    string[] commandSplit = Regex.Split(command, " ");
+                    string[] fragments;
+                    int circleNum;
+                    bool ifstart;
+                    char SoI;
+                    switch (commandSplit[0])
+                    {
+                        case "M":
+                            for (int i = 1; i < int.Parse(commandSplit[1]); i++)
+                                textBox1.AppendText("\r\n" + text1);
+                            break;
+                        case "R":
+                            textBox1.Text = Regex.Replace(text1, commandSplit[1], commandSplit[2]);
+                            break;
+                        case "RNUM":
+                            fragments = Regex.Split(text1, commandSplit[1]);
+                            text1 = fragments[0];
+                            int iniNum = int.Parse(commandSplit[2]);
+                            int stepNum = int.Parse(commandSplit[3]);
+                            circleNum = int.Parse(commandSplit[4]);
+                            SoI = commandSplit[5][0];
+                            ifstart = true;
+                            if (SoI == 'S')
+                            {
+                                int rank = 0;
+                                foreach (string fragment in fragments)
+                                {
+                                    if (ifstart)
+                                    {
+                                        ifstart = false;
+                                        continue;
+                                    }
+                                    text1 += (iniNum + rank * stepNum).ToString() + fragment;
+                                    rank++;
+                                    rank = (rank) % (circleNum);
+
+                                }
+                                textBox1.Text = text1;
+                            }
+                            else
+                            {
+                                int rank = 1;
+                                foreach (string fragment in fragments)
+                                {
+                                    if (ifstart)
+                                    {
+                                        ifstart = false;
+                                        continue;
+                                    }
+                                    text1 += iniNum.ToString() + fragment;
+                                    if (rank++ % circleNum == 0)
+                                        iniNum += stepNum;
+                                }
+                                textBox1.Text = text1;
+                            }
+                            break;
+                        case "RWORD":
+                            fragments = Regex.Split(text1, commandSplit[1]);
+                            text1 = fragments[0];
+                            string[] paraList = Regex.Split(commandSplit[2], ",");
+                            circleNum = int.Parse(commandSplit[3]);
+                            SoI = commandSplit[4][0];
+                            ifstart = true;
+                            if (SoI == 'S')
+                            {
+                                int rank = 0;
+                                foreach (string fragment in fragments)
+                                {
+                                    if (ifstart)
+                                    {
+                                        ifstart = false;
+                                        continue;
+                                    }
+                                    text1 += (paraList[rank]).ToString() + fragment;
+                                    rank++;
+                                    rank = (rank) % (circleNum);
+
+                                }
+                                textBox1.Text = text1;
+                            }
+                            else
+                            {
+                                int rank = 1;
+                                int rankS = 0;
+                                foreach (string fragment in fragments)
+                                {
+                                    if (ifstart)
+                                    {
+                                        ifstart = false;
+                                        continue;
+                                    }
+                                    text1 += paraList[rankS] + fragment;
+                                    if (rank++ % circleNum == 0)
+                                        rankS = (++rankS) % circleNum;
+                                }
+                                textBox1.Text = text1;
+                            }
+                            break;
+                        default:
+                            throw new Exception("");
+                    }
+                }
+                undoList.Push(textBox1.Text);
+                CundoList.Push(textBox2.Text);
+                redoList.Clear();
+                CredoList.Clear();
+            }
+            catch{
+                    MessageBox.Show("Invalid Command!");
+                }
+            }
+
+        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            textBox1.ClearUndo();
+            if (e.Control && e.KeyCode == Keys.Z)
+            {
+                if (undoList.Count != 0)
+                {
+                    redoList.Push(undoList.Peek());
+                    textBox1.Text = undoList.Pop();    
+                }    
+            }
+            if(e.Control && e.KeyCode == Keys.Y)
+            {
+                if (redoList.Count != 0)
+                {
+                    undoList.Push(redoList.Peek());
+                    textBox1.Text = redoList.Pop();
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void textBox2_KeyDown(object sender, KeyEventArgs e)
+        {
+            textBox2.ClearUndo();
+            if (e.Control && e.KeyCode == Keys.Z)
+            {
+                if (CundoList.Count != 0)
+                {
+                    CredoList.Push(CundoList.Peek());
+                    textBox2.Text = CundoList.Pop();
+                }
+            }
+            if (e.Control && e.KeyCode == Keys.Y)
+            {
+                if (CredoList.Count != 0)
+                {
+                    CundoList.Push(CredoList.Peek());
+                    textBox2.Text = CredoList.Pop();
+                    e.Handled = true;
+                }
+            }
+        }
+
+        }
+    }
